@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KPI Dashboard — CIPlastic 2026</title>
+  <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  KPI DASHBOARD — CIPLASTIC                                   ║
+    ║  Fuente: Google Sheets (CSV público)                         ║
+    ║  Actualización automática: cada hora                         ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║  INSTRUCCIONES PARA GITHUB PAGES:                            ║
+    ║  1. Sube este archivo como index.html en tu repo             ║
+    ║  2. Ve a Settings > Pages > Source: main / root              ║
+    ║  3. Tu URL será: https://tuusuario.github.io/nombre-repo     ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║  PASO CRÍTICO — PUBLICAR EL SPREADSHEET:                     ║
+    ║  En Google Sheets: Archivo > Compartir >                     ║
+    ║  "Publicar en la web" > Pestaña "tracker - mayo" > CSV       ║
+    ║  Sin este paso, los datos no cargarán.                       ║
+    ╚══════════════════════════════════════════════════════════════╝
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #080b12;
+      --card:    #111520;
+      --card2:   #181d2e;
+      --border:  #252b42;
+      --accent:  #6c63ff;
+      --green:   #00e676;
+      --yellow:  #ffc400;
+      --red:     #ff4444;
+      --text:    #dce6f5;
+      --muted:   #5a6385;
+      --white:   #ffffff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 28px;
+      background: var(--card);
+      border-bottom: 2px solid var(--accent);
+      flex-shrink: 0;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { font-size: 1.8rem; }
+    .logo-text { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; }
+    .logo-text span { color: var(--accent); }
+
+    .header-right { text-align: right; }
+    #clock {
+      font-size: 1.6rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--white);
+    }
+    #date-str { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    #last-update { font-size: 0.7rem; color: var(--muted); margin-top: 1px; }
+
+    /* ─── MAIN LAYOUT ─── */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+      padding: 14px 20px 12px;
+      min-height: 0;
+    }
+
+    /* ─── TEAM SUMMARY STRIP ─── */
+    #team-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .kpi-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 2.1rem;
+      font-weight: 900;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi-sub { font-size: 0.68rem; color: var(--muted); }
+
+    /* ─── AGENTS ROW ─── */
+    #agents-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .agent-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .agent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .agent-name { font-size: 1.15rem; font-weight: 800; }
+    .agent-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--card2);
+      color: var(--muted);
+    }
+
+    /* Deposits highlight */
+    .deposit-block {
+      background: var(--card2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .deposit-left { flex: 1; }
+    .deposit-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+    .deposit-value { font-size: 3.2rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+    .deposit-meta { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+
+    .deposit-circle {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* Small KPI grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .mini-kpi {
+      background: var(--card2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mini-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+    .mini-value { font-size: 1.55rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
+    .mini-sub   { font-size: 0.62rem; color: var(--muted); }
+
+    /* ─── PROGRESS BAR ─── */
+    .bar-wrap {
+      height: 5px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ─── COLORS ─── */
+    .c-green  { color: var(--green); }
+    .c-yellow { color: var(--yellow); }
+    .c-red    { color: var(--red); }
+    .c-white  { color: var(--white); }
+    .bg-green  { background: var(--green); }
+    .bg-yellow { background: var(--yellow); }
+    .bg-red    { background: var(--red); }
+
+    /* ─── LOADING / ERROR ─── */
+    .state-msg {
+      grid-column: span 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 80px;
+      font-size: 1rem;
+      color: var(--muted);
+      gap: 10px;
+    }
+
+    /* ─── TICKER BOTTOM ─── */
+    .ticker {
+      flex-shrink: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 6px 20px;
+      display: flex;
+      gap: 32px;
+      overflow: hidden;
+    }
+    .ticker-item {
+      display: flex; gap: 8px; align-items: center;
+      font-size: 0.75rem; white-space: nowrap;
+    }
+    .ticker-label { color: var(--muted); }
+    .ticker-val   { font-weight: 700; color: var(--white); }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <div class="logo-text">CI<span>PLASTIC</span> — Dashboard KPIs <span style="color:var(--muted);font-size:0.85rem;font-weight:400">Mayo 2026</span></div>
+  </div>
+  <div class="header-right">
+    <div id="clock">--:--:--</div>
+    <div id="date-str">--</div>
+    <div id="last-update">⏳ Cargando...</div>
+  </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main>
+  <!-- Team KPI strip -->
+  <div id="team-row">
+    <div class="state-msg">⏳ Conectando con Google Sheets...</div>
+  </div>
+
+  <!-- Agent cards -->
+  <div id="agents-row"></div>
+</main>
+
+<!-- ── TICKER (bottom) ── -->
+<div class="ticker" id="ticker"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────
+const SHEET_ID  = '1PF84PMENS21CAbc5WPI9ZoxrVh62_QL3ItP_XAPkQq0';
+const GID       = '1342720595';
+const MONTH_TAG = '05/2026'; // ← cambia al siguiente mes cuando sea necesario
+
+const AGENTS = ['PEDRO BACA', 'MISAEL MIRANDA', 'ALEXA ESCALANTE'];
+
+// Column indices dentro del CSV (0-based) para cada agente
+// [leads, llamadas, fotos, VV, cotiz, dep, acumDep]
+const AGENT_COLS = [
+  [2,  3,  4,  5,  6,  7,  8 ],  // Pedro
+  [9,  10, 11, 12, 13, 14, 15],  // Misael
+  [16, 17, 18, 19, 20, 21, 22],  // Alexa
+];
+const TEAM_COLS = [23, 24, 25, 26, 27, 28, 29];
+// idx: 0=leads 1=llamadas 2=fotos 3=VV 4=cotiz 5=dep 6=acumDep
+
+const MONTHLY_GOALS_AGENT = [null, 1250, 200, 175, 158, 75, 75];
+const MONTHLY_GOALS_TEAM  = [null, 3750, 600, 525, 474, 225, 225];
+
+// ─── HELPERS ──────────────────────────────────────────────────────
+const num = v => { const n = parseFloat((v||'').replace(/,/g,'')); return isNaN(n) ? 0 : n; };
+const pct = (v, g) => g ? Math.min(100, Math.round(v / g * 100)) : 0;
+const cc  = p => p >= 80 ? 'c-green' : p >= 45 ? 'c-yellow' : 'c-red';
+const fc  = p => p >= 80 ? 'bg-green' : p >= 45 ? 'bg-yellow' : 'bg-red';
+const bgc = p => p >= 80 ? 'rgba(0,230,118,.15)' : p >= 45 ? 'rgba(255,196,0,.12)' : 'rgba(255,68,68,.12)';
+const bdc = p => p >= 80 ? 'rgba(0,230,118,.35)' : p >= 45 ? 'rgba(255,196,0,.3)' : 'rgba(255,68,68,.3)';
+const fmt = v => Number.isInteger(v) ? v.toLocaleString('es-MX') : v;
+
+function parseCSV(text) {
+  return text.split('\n').map(line => {
+    const row = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    row.push(cur.trim());
+    return row;
+  });
+}
+
+// ─── FETCH & RENDER ───────────────────────────────────────────────
+async function fetchAndRender() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&cachebust=${Date.now()}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = parseCSV(await res.text());
+
+    // Find rows for this month
+    const monthRows = rows.filter(r => r[0] && r[0].includes(`/${MONTH_TAG}`));
+
+    // Find TOTAL MES row that follows this month's data
+    const firstMonthIdx = rows.findIndex(r => r[0] && r[0].includes(`/${MONTH_TAG}`));
+    let totalRow = null, metaRow = null;
+    for (let i = firstMonthIdx; i < rows.length; i++) {
+      if (rows[i][0] === 'TOTAL MES' && !totalRow)   { totalRow = rows[i]; }
+      if (rows[i][0] === 'META MENSUAL' && totalRow)  { metaRow = rows[i]; break; }
+    }
+
+    const getTotals = (cols) => cols.map(c => num(totalRow?.[c]));
+    const teamT  = getTotals(TEAM_COLS);
+    const agentT = AGENTS.map((_, i) => getTotals(AGENT_COLS[i]));
+
+    // Día más reciente con actividad
+    const lastActive = [...monthRows].reverse().find(r =>
+      AGENT_COLS.flat().some(c => num(r[c]) > 0)
+    ) || monthRows[monthRows.length - 1];
+
+    renderTeam(teamT);
+    renderAgents(agentT, lastActive);
+    renderTicker(teamT, agentT);
+
+    document.getElementById('last-update').textContent =
+      `✅ Actualizado: ${new Date().toLocaleTimeString('es-MX')}`;
+
+  } catch (e) {
+    console.error(e);
+    document.getElementById('team-row').innerHTML = `
+      <div class="state-msg" style="color:var(--red)">
+        ⚠️ Error: ${e.message} — Verifica que el spreadsheet esté <strong>publicado en la web</strong>
+      </div>`;
+    document.getElementById('last-update').textContent = `❌ Error al cargar datos`;
+  }
+}
+
+// ─── RENDER TEAM STRIP ────────────────────────────────────────────
+function renderTeam(t) {
+  // [0]=leads [1]=llamadas [2]=fotos [3]=VV [4]=cotiz [5]=dep
+  const cards = [
+    { label:'💰 Depósitos',    val: t[5], goal: MONTHLY_GOALS_TEAM[5] },
+    { label:'🏥 VV Agendadas', val: t[3], goal: MONTHLY_GOALS_TEAM[3] },
+    { label:'📋 Cotizaciones', val: t[4], goal: MONTHLY_GOALS_TEAM[4] },
+    { label:'📷 Fotos',        val: t[2], goal: MONTHLY_GOALS_TEAM[2] },
+    { label:'📞 Llamadas',     val: t[1], goal: MONTHLY_GOALS_TEAM[1] },
+    { label:'🎯 Leads',        val: t[0], goal: null },
+  ];
+
+  document.getElementById('team-row').innerHTML = cards.map(c => {
+    const p = pct(c.val, c.goal);
+    return `
+      <div class="kpi-card">
+        <div class="kpi-label">${c.label} <span style="font-size:0.6rem;opacity:.5">EQUIPO</span></div>
+        <div class="kpi-value ${c.goal ? cc(p) : 'c-white'}">${fmt(c.val)}</div>
+        ${c.goal ? `
+          <div class="bar-wrap"><div class="bar-fill ${fc(p)}" style="width:${p}%"></div></div>
+          <div class="kpi-sub">${p}% · Meta: ${fmt(c.goal)}</div>
+        ` : `<div class="kpi-sub">Total del mes</div>`}
+      </div>`;
+  }).join('');
+}
+
+// ─── RENDER AGENT CARDS ───────────────────────────────────────────
+function renderAgents(agentT, lastRow) {
+  document.getElementById('agents-row').innerHTML = AGENTS.map((name, a) => {
+    const t  = agentT[a];
+    const dp = pct(t[5], 75);
+    const lp = pct(t[1], 1250);
+    const fp = pct(t[2], 200);
+    const vp = pct(t[3], 175);
+    const cp = pct(t[4], 158);
+
+    // Last day values
+    const ld = lastRow ? AGENT_COLS[a].map(c => num(lastRow[c])) : [];
+
+    return `
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-name">👤 ${name.split(' ')[0]} <span style="opacity:.5">${name.split(' ').slice(1).join(' ')}</span></div>
+        <div class="agent-badge">Último día: ${ld[5] || 0} dep · ${ld[1] || 0} llam</div>
+      </div>
+
+      <!-- DEPOSITS HERO -->
+      <div class="deposit-block" style="background:${bgc(dp)};border-color:${bdc(dp)}">
+        <div class="deposit-left">
+          <div class="deposit-label">💰 Depósitos del mes</div>
+          <div class="deposit-value ${cc(dp)}">${t[5]}</div>
+          <div class="deposit-meta">Meta: 75 · ${dp}% alcanzado</div>
+          <div class="bar-wrap" style="margin-top:6px;height:6px">
+            <div class="bar-fill ${fc(dp)}" style="width:${dp}%"></div>
+          </div>
+        </div>
+        <div class="deposit-circle" style="background:${bgc(dp)};border:2px solid ${bdc(dp)};color:${dp>=80?'var(--green)':dp>=45?'var(--yellow)':'var(--red)'}">
+          ${dp}%
+        </div>
+      </div>
+
+      <!-- KPI GRID -->
+      <div class="kpi-grid">
+        ${miniKPI('📞 Llamadas', t[1], 1250, lp)}
+        ${miniKPI('📷 Fotos', t[2], 200, fp)}
+        ${miniKPI('🏥 VV Agend.', t[3], 175, vp)}
+        ${miniKPI('📋 Cotizaciones', t[4], 158, cp)}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function miniKPI(label, val, goal, p) {
+  return `
+    <div class="mini-kpi">
+      <div class="mini-label">${label}</div>
+      <div class="mini-value ${cc(p)}">${fmt(val)}</div>
+      <div class="mini-sub">Meta: ${fmt(goal)} · ${p}%</div>
+      <div class="bar-wrap"><div class="bar-fill ${fc(p)}" style="width:${p}%"></div></div>
+    </div>`;
+}
+
+// ─── TICKER BAR ───────────────────────────────────────────────────
+function renderTicker(teamT, agentT) {
+  const items = [
+    { label: 'LEADS TOTALES', val: teamT[0] },
+    { label: 'LLAMADAS EQUIPO', val: `${teamT[1]} / 3,750` },
+    { label: 'FOTOS EQUIPO', val: `${teamT[2]} / 600` },
+    { label: 'VV EQUIPO', val: `${teamT[3]} / 525` },
+    { label: 'COTIZACIONES EQUIPO', val: `${teamT[4]} / 474` },
+    { label: 'CIERRES MES', val: teamT[5], highlight: true },
+    ...AGENTS.map((n, i) => ({ label: `${n.split(' ')[0]} DEP`, val: agentT[i][5] }))
+  ];
+
+  document.getElementById('ticker').innerHTML = items.map(it => `
+    <div class="ticker-item">
+      <span class="ticker-label">${it.label}</span>
+      <span class="ticker-val" ${it.highlight ? 'style="color:var(--green)"' : ''}>${fmt(it.val)}</span>
+    </div>`).join('<span style="color:var(--border)">│</span>');
+}
+
+// ─── CLOCK ────────────────────────────────────────────────────────
+function updateClock() {
+  const now  = new Date();
+  const hh   = String(now.getHours()).padStart(2,'0');
+  const mm   = String(now.getMinutes()).padStart(2,'0');
+  const ss   = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+  document.getElementById('date-str').textContent =
+    now.toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+fetchAndRender();
+updateClock();
+
+setInterval(updateClock, 1000);
+
+// Refresca datos cada hora (ajusta a 24h si prefieres: 86400000)
+setInterval(fetchAndRender, 60 * 60 * 1000);
+</script>
+</body>
+</html>
