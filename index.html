@@ -13,29 +13,36 @@
     ║  INSTRUCCIONES PARA GITHUB PAGES:                            ║
     ║  1. Sube este archivo como index.html en tu repo             ║
     ║  2. Ve a Settings > Pages > Source: main / root              ║
-    ║  3. Tu URL será: https://tuusuario.github.io/nombre-repo     ║
+    ║  Tu URL: https://tuusuario.github.io/nombre-repo             ║
     ╠══════════════════════════════════════════════════════════════╣
     ║  PASO CRÍTICO — PUBLICAR EL SPREADSHEET:                     ║
-    ║  En Google Sheets: Archivo > Compartir >                     ║
-    ║  "Publicar en la web" > Pestaña "tracker - mayo" > CSV       ║
-    ║  Sin este paso, los datos no cargarán.                       ║
+    ║  Archivo > Compartir > Publicar en la web >                  ║
+    ║  "tracker - mayo" > Valores separados por coma > Publicar    ║
     ╚══════════════════════════════════════════════════════════════╝
   -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #080b12;
-      --card:    #111520;
-      --card2:   #181d2e;
-      --border:  #252b42;
-      --accent:  #6c63ff;
-      --green:   #00e676;
-      --yellow:  #ffc400;
-      --red:     #ff4444;
-      --text:    #dce6f5;
-      --muted:   #5a6385;
-      --white:   #ffffff;
+      --navy:    #1a3a6b;
+      --navy2:   #1e4a80;
+      --teal:    #2bbfd4;
+      --teal2:   #1a8fa0;
+      --bg:      #f0f4f9;
+      --surface: #ffffff;
+      --surface2:#e8eef7;
+      --border:  #d0daea;
+      --text:    #1a2640;
+      --muted:   #6b7fa0;
+      --green:   #00a854;
+      --yellow:  #d4960a;
+      --red:     #d9363e;
+      --green-bg:#e6f7ef;
+      --yellow-bg:#fef8e6;
+      --red-bg:  #fdf0f0;
+      --green-bd:#a3d9bc;
+      --yellow-bd:#f0d078;
+      --red-bd:  #f0a8aa;
     }
 
     body {
@@ -54,38 +61,85 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 28px;
-      background: var(--card);
-      border-bottom: 2px solid var(--accent);
+      padding: 0 28px;
+      height: 68px;
+      background: var(--navy);
       flex-shrink: 0;
+      position: relative;
     }
 
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo-icon { font-size: 1.8rem; }
-    .logo-text { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; }
-    .logo-text span { color: var(--accent); }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--teal), var(--navy2), var(--teal));
+    }
+
+    .logo-area { display: flex; align-items: center; gap: 16px; }
+
+    .logo-img {
+      height: 44px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+
+    .logo-fallback {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    .logo-fallback span { color: var(--teal); }
+
+    .logo-divider {
+      width: 1px; height: 32px;
+      background: rgba(255,255,255,.25);
+    }
+
+    .header-subtitle {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,.65);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      line-height: 1.5;
+    }
 
     .header-right { text-align: right; }
-    #clock {
-      font-size: 1.6rem;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      color: var(--white);
-    }
-    #date-str { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
-    #last-update { font-size: 0.7rem; color: var(--muted); margin-top: 1px; }
 
-    /* ─── MAIN LAYOUT ─── */
+    #clock {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    #date-str {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,.55);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    #last-update {
+      font-size: 0.65rem;
+      color: var(--teal);
+      margin-top: 2px;
+    }
+
+    /* ─── MAIN ─── */
     main {
       flex: 1;
       display: grid;
       grid-template-rows: auto 1fr;
       gap: 12px;
-      padding: 14px 20px 12px;
+      padding: 14px 18px 12px;
       min-height: 0;
     }
 
-    /* ─── TEAM SUMMARY STRIP ─── */
+    /* ─── TEAM STRIP ─── */
     #team-row {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -93,31 +147,32 @@
     }
 
     .kpi-card {
-      background: var(--card);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 14px 16px;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      box-shadow: 0 1px 4px rgba(26,58,107,.06);
     }
 
     .kpi-label {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       color: var(--muted);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .kpi-value {
-      font-size: 2.1rem;
+      font-size: 2rem;
       font-weight: 900;
       line-height: 1;
       font-variant-numeric: tabular-nums;
     }
 
-    .kpi-sub { font-size: 0.68rem; color: var(--muted); }
+    .kpi-sub { font-size: 0.67rem; color: var(--muted); }
 
     /* ─── AGENTS ROW ─── */
     #agents-row {
@@ -128,13 +183,14 @@
     }
 
     .agent-card {
-      background: var(--card);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(26,58,107,.07);
       min-height: 0;
     }
 
@@ -143,44 +199,46 @@
       align-items: center;
       justify-content: space-between;
       padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid var(--surface2);
     }
 
-    .agent-name { font-size: 1.15rem; font-weight: 800; }
+    .agent-name { font-size: 1.1rem; font-weight: 800; color: var(--navy); }
+
     .agent-badge {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 3px 9px;
       border-radius: 20px;
-      background: var(--card2);
+      background: var(--surface2);
       color: var(--muted);
+      border: 1px solid var(--border);
     }
 
-    /* Deposits highlight */
+    /* Deposits hero */
     .deposit-block {
-      background: var(--card2);
       border-radius: 12px;
       padding: 14px 16px;
       display: flex;
       align-items: center;
-      gap: 16px;
-      border: 1px solid var(--border);
+      gap: 14px;
+      border: 1px solid;
     }
 
     .deposit-left { flex: 1; }
-    .deposit-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
-    .deposit-value { font-size: 3.2rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
-    .deposit-meta { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+    .deposit-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
+    .deposit-value { font-size: 3rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+    .deposit-meta  { font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
 
     .deposit-circle {
-      width: 64px; height: 64px;
+      width: 60px; height: 60px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 800;
+      font-size: 0.72rem; font-weight: 900;
       flex-shrink: 0;
+      border: 2px solid;
     }
 
-    /* Small KPI grid */
+    /* KPI grid */
     .kpi-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -189,79 +247,69 @@
     }
 
     .mini-kpi {
-      background: var(--card2);
+      background: var(--surface2);
       border-radius: 10px;
       padding: 10px 12px;
       border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
     }
 
-    .mini-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
-    .mini-value { font-size: 1.55rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
-    .mini-sub   { font-size: 0.62rem; color: var(--muted); }
+    .mini-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); font-weight: 700; }
+    .mini-value { font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; margin: 2px 0; }
+    .mini-sub   { font-size: 0.6rem; color: var(--muted); }
 
-    /* ─── PROGRESS BAR ─── */
-    .bar-wrap {
-      height: 5px;
-      background: var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 4px;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 1.2s cubic-bezier(.4,0,.2,1);
-    }
+    /* Progress bar */
+    .bar-wrap { height: 5px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+    .bar-fill  { height: 100%; border-radius: 4px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
 
-    /* ─── COLORS ─── */
+    /* Color classes */
     .c-green  { color: var(--green); }
     .c-yellow { color: var(--yellow); }
     .c-red    { color: var(--red); }
-    .c-white  { color: var(--white); }
+    .c-navy   { color: var(--navy); }
+
     .bg-green  { background: var(--green); }
     .bg-yellow { background: var(--yellow); }
     .bg-red    { background: var(--red); }
 
-    /* ─── LOADING / ERROR ─── */
     .state-msg {
       grid-column: span 6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 80px;
-      font-size: 1rem;
-      color: var(--muted);
-      gap: 10px;
+      display: flex; align-items: center; justify-content: center;
+      height: 80px; font-size: 1rem; color: var(--muted); gap: 10px;
     }
 
-    /* ─── TICKER BOTTOM ─── */
+    /* ─── TICKER ─── */
     .ticker {
       flex-shrink: 0;
-      background: var(--card);
-      border-top: 1px solid var(--border);
-      padding: 6px 20px;
+      background: var(--navy);
+      padding: 7px 20px;
       display: flex;
-      gap: 32px;
+      gap: 28px;
+      align-items: center;
       overflow: hidden;
     }
-    .ticker-item {
-      display: flex; gap: 8px; align-items: center;
-      font-size: 0.75rem; white-space: nowrap;
-    }
-    .ticker-label { color: var(--muted); }
-    .ticker-val   { font-weight: 700; color: var(--white); }
+
+    .ticker-item { display: flex; gap: 8px; align-items: center; font-size: 0.72rem; white-space: nowrap; }
+    .ticker-label { color: rgba(255,255,255,.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; font-size: 0.62rem; }
+    .ticker-val   { font-weight: 800; color: #fff; }
+    .ticker-sep   { color: rgba(255,255,255,.2); }
+    .ticker-hi    { color: var(--teal); }
   </style>
 </head>
 <body>
 
 <!-- ── HEADER ── -->
 <header>
-  <div class="logo">
-    <div class="logo-icon">📊</div>
-    <div class="logo-text">CI<span>PLASTIC</span> — Dashboard KPIs <span style="color:var(--muted);font-size:0.85rem;font-weight:400">Mayo 2026</span></div>
+  <div class="logo-area">
+    <img class="logo-img"
+         src="https://ciplastic.com/wp-content/uploads/2025/04/cropped-Logo_Footer-1.png-1.webp"
+         onerror="this.style.display='none';document.getElementById('logo-fb').style.display='block'"
+         alt="CIPlastic">
+    <div class="logo-fallback" id="logo-fb" style="display:none">CI<span>PLASTIC</span></div>
+    <div class="logo-divider"></div>
+    <div class="header-subtitle">
+      Dashboard KPIs — Equipo Comercial<br>
+      Mayo 2026 · Meta: 225 depósitos / mes
+    </div>
   </div>
   <div class="header-right">
     <div id="clock">--:--:--</div>
@@ -272,16 +320,13 @@
 
 <!-- ── MAIN ── -->
 <main>
-  <!-- Team KPI strip -->
   <div id="team-row">
     <div class="state-msg">⏳ Conectando con Google Sheets...</div>
   </div>
-
-  <!-- Agent cards -->
   <div id="agents-row"></div>
 </main>
 
-<!-- ── TICKER (bottom) ── -->
+<!-- ── TICKER ── -->
 <div class="ticker" id="ticker"></div>
 
 <script>
@@ -292,27 +337,28 @@ const MONTH_TAG = '05/2026'; // ← cambia al siguiente mes cuando sea necesario
 
 const AGENTS = ['PEDRO BACA', 'MISAEL MIRANDA', 'ALEXA ESCALANTE'];
 
-// Column indices dentro del CSV (0-based) para cada agente
-// [leads, llamadas, fotos, VV, cotiz, dep, acumDep]
 const AGENT_COLS = [
-  [2,  3,  4,  5,  6,  7,  8 ],  // Pedro
-  [9,  10, 11, 12, 13, 14, 15],  // Misael
-  [16, 17, 18, 19, 20, 21, 22],  // Alexa
+  [2,  3,  4,  5,  6,  7,  8 ],
+  [9,  10, 11, 12, 13, 14, 15],
+  [16, 17, 18, 19, 20, 21, 22],
 ];
 const TEAM_COLS = [23, 24, 25, 26, 27, 28, 29];
 // idx: 0=leads 1=llamadas 2=fotos 3=VV 4=cotiz 5=dep 6=acumDep
 
-const MONTHLY_GOALS_AGENT = [null, 1250, 200, 175, 158, 75, 75];
-const MONTHLY_GOALS_TEAM  = [null, 3750, 600, 525, 474, 225, 225];
+const MONTHLY_GOALS_TEAM = [null, 3750, 600, 525, 474, 225, 225];
 
 // ─── HELPERS ──────────────────────────────────────────────────────
 const num = v => { const n = parseFloat((v||'').replace(/,/g,'')); return isNaN(n) ? 0 : n; };
 const pct = (v, g) => g ? Math.min(100, Math.round(v / g * 100)) : 0;
 const cc  = p => p >= 80 ? 'c-green' : p >= 45 ? 'c-yellow' : 'c-red';
 const fc  = p => p >= 80 ? 'bg-green' : p >= 45 ? 'bg-yellow' : 'bg-red';
-const bgc = p => p >= 80 ? 'rgba(0,230,118,.15)' : p >= 45 ? 'rgba(255,196,0,.12)' : 'rgba(255,68,68,.12)';
-const bdc = p => p >= 80 ? 'rgba(0,230,118,.35)' : p >= 45 ? 'rgba(255,196,0,.3)' : 'rgba(255,68,68,.3)';
-const fmt = v => Number.isInteger(v) ? v.toLocaleString('es-MX') : v;
+const fmt = v => typeof v === 'number' ? v.toLocaleString('es-MX') : v;
+
+function blockColors(p) {
+  if (p >= 80) return { bg:'var(--green-bg)', bd:'var(--green-bd)', txt:'var(--green)' };
+  if (p >= 45) return { bg:'var(--yellow-bg)', bd:'var(--yellow-bd)', txt:'var(--yellow)' };
+  return { bg:'var(--red-bg)', bd:'var(--red-bd)', txt:'var(--red)' };
+}
 
 function parseCSV(text) {
   return text.split('\n').map(line => {
@@ -330,28 +376,25 @@ function parseCSV(text) {
 
 // ─── FETCH & RENDER ───────────────────────────────────────────────
 async function fetchAndRender() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&cachebust=${Date.now()}`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&t=${Date.now()}`;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const rows = parseCSV(await res.text());
 
-    // Find rows for this month
     const monthRows = rows.filter(r => r[0] && r[0].includes(`/${MONTH_TAG}`));
-
-    // Find TOTAL MES row that follows this month's data
     const firstMonthIdx = rows.findIndex(r => r[0] && r[0].includes(`/${MONTH_TAG}`));
+
     let totalRow = null, metaRow = null;
     for (let i = firstMonthIdx; i < rows.length; i++) {
-      if (rows[i][0] === 'TOTAL MES' && !totalRow)   { totalRow = rows[i]; }
-      if (rows[i][0] === 'META MENSUAL' && totalRow)  { metaRow = rows[i]; break; }
+      if (rows[i][0] === 'TOTAL MES' && !totalRow)  { totalRow = rows[i]; }
+      if (rows[i][0] === 'META MENSUAL' && totalRow) { metaRow = rows[i]; break; }
     }
 
-    const getTotals = (cols) => cols.map(c => num(totalRow?.[c]));
+    const getTotals = cols => cols.map(c => num(totalRow?.[c]));
     const teamT  = getTotals(TEAM_COLS);
     const agentT = AGENTS.map((_, i) => getTotals(AGENT_COLS[i]));
 
-    // Día más reciente con actividad
     const lastActive = [...monthRows].reverse().find(r =>
       AGENT_COLS.flat().some(c => num(r[c]) > 0)
     ) || monthRows[monthRows.length - 1];
@@ -361,45 +404,45 @@ async function fetchAndRender() {
     renderTicker(teamT, agentT);
 
     document.getElementById('last-update').textContent =
-      `✅ Actualizado: ${new Date().toLocaleTimeString('es-MX')}`;
+      `✓ Actualizado ${new Date().toLocaleTimeString('es-MX')}`;
 
   } catch (e) {
     console.error(e);
     document.getElementById('team-row').innerHTML = `
       <div class="state-msg" style="color:var(--red)">
-        ⚠️ Error: ${e.message} — Verifica que el spreadsheet esté <strong>publicado en la web</strong>
+        ⚠️ ${e.message} — Verifica que el spreadsheet esté <strong>publicado en la web</strong>
       </div>`;
-    document.getElementById('last-update').textContent = `❌ Error al cargar datos`;
+    document.getElementById('last-update').textContent = `⚠ Error al cargar`;
   }
 }
 
-// ─── RENDER TEAM STRIP ────────────────────────────────────────────
+// ─── TEAM STRIP ───────────────────────────────────────────────────
 function renderTeam(t) {
-  // [0]=leads [1]=llamadas [2]=fotos [3]=VV [4]=cotiz [5]=dep
   const cards = [
-    { label:'💰 Depósitos',    val: t[5], goal: MONTHLY_GOALS_TEAM[5] },
-    { label:'🏥 VV Agendadas', val: t[3], goal: MONTHLY_GOALS_TEAM[3] },
-    { label:'📋 Cotizaciones', val: t[4], goal: MONTHLY_GOALS_TEAM[4] },
-    { label:'📷 Fotos',        val: t[2], goal: MONTHLY_GOALS_TEAM[2] },
-    { label:'📞 Llamadas',     val: t[1], goal: MONTHLY_GOALS_TEAM[1] },
-    { label:'🎯 Leads',        val: t[0], goal: null },
+    { icon:'💰', label:'Depósitos Equipo',    val: t[5], goal: MONTHLY_GOALS_TEAM[5] },
+    { icon:'🏥', label:'VV Agendadas',         val: t[3], goal: MONTHLY_GOALS_TEAM[3] },
+    { icon:'📋', label:'Cotizaciones',          val: t[4], goal: MONTHLY_GOALS_TEAM[4] },
+    { icon:'📷', label:'Fotos Recibidas',       val: t[2], goal: MONTHLY_GOALS_TEAM[2] },
+    { icon:'📞', label:'Llamadas Realizadas',   val: t[1], goal: MONTHLY_GOALS_TEAM[1] },
+    { icon:'🎯', label:'Leads del Mes',         val: t[0], goal: null },
   ];
 
   document.getElementById('team-row').innerHTML = cards.map(c => {
     const p = pct(c.val, c.goal);
+    const isDeposit = c.goal === 225;
     return `
-      <div class="kpi-card">
-        <div class="kpi-label">${c.label} <span style="font-size:0.6rem;opacity:.5">EQUIPO</span></div>
-        <div class="kpi-value ${c.goal ? cc(p) : 'c-white'}">${fmt(c.val)}</div>
+      <div class="kpi-card" ${isDeposit ? 'style="border-color:var(--teal);border-width:2px"' : ''}>
+        <div class="kpi-label">${c.icon} ${c.label}</div>
+        <div class="kpi-value ${c.goal ? cc(p) : 'c-navy'}">${fmt(c.val)}</div>
         ${c.goal ? `
           <div class="bar-wrap"><div class="bar-fill ${fc(p)}" style="width:${p}%"></div></div>
-          <div class="kpi-sub">${p}% · Meta: ${fmt(c.goal)}</div>
-        ` : `<div class="kpi-sub">Total del mes</div>`}
+          <div class="kpi-sub">${p}% de meta · ${fmt(c.goal)}</div>
+        ` : `<div class="kpi-sub">Total acumulado</div>`}
       </div>`;
   }).join('');
 }
 
-// ─── RENDER AGENT CARDS ───────────────────────────────────────────
+// ─── AGENT CARDS ──────────────────────────────────────────────────
 function renderAgents(agentT, lastRow) {
   document.getElementById('agents-row').innerHTML = AGENTS.map((name, a) => {
     const t  = agentT[a];
@@ -408,44 +451,44 @@ function renderAgents(agentT, lastRow) {
     const fp = pct(t[2], 200);
     const vp = pct(t[3], 175);
     const cp = pct(t[4], 158);
-
-    // Last day values
+    const cl = blockColors(dp);
     const ld = lastRow ? AGENT_COLS[a].map(c => num(lastRow[c])) : [];
+
+    const first = name.split(' ')[0];
+    const last  = name.split(' ').slice(1).join(' ');
 
     return `
     <div class="agent-card">
       <div class="agent-header">
-        <div class="agent-name">👤 ${name.split(' ')[0]} <span style="opacity:.5">${name.split(' ').slice(1).join(' ')}</span></div>
-        <div class="agent-badge">Último día: ${ld[5] || 0} dep · ${ld[1] || 0} llam</div>
+        <div class="agent-name">👤 ${first} <span style="color:var(--muted);font-weight:600">${last}</span></div>
+        <div class="agent-badge">Último día → ${ld[5]||0} dep · ${ld[1]||0} llam</div>
       </div>
 
-      <!-- DEPOSITS HERO -->
-      <div class="deposit-block" style="background:${bgc(dp)};border-color:${bdc(dp)}">
+      <div class="deposit-block" style="background:${cl.bg};border-color:${cl.bd}">
         <div class="deposit-left">
           <div class="deposit-label">💰 Depósitos del mes</div>
-          <div class="deposit-value ${cc(dp)}">${t[5]}</div>
-          <div class="deposit-meta">Meta: 75 · ${dp}% alcanzado</div>
+          <div class="deposit-value" style="color:${cl.txt}">${t[5]}</div>
+          <div class="deposit-meta" style="color:var(--muted)">Meta: 75 · ${dp}% alcanzado</div>
           <div class="bar-wrap" style="margin-top:6px;height:6px">
             <div class="bar-fill ${fc(dp)}" style="width:${dp}%"></div>
           </div>
         </div>
-        <div class="deposit-circle" style="background:${bgc(dp)};border:2px solid ${bdc(dp)};color:${dp>=80?'var(--green)':dp>=45?'var(--yellow)':'var(--red)'}">
+        <div class="deposit-circle" style="background:${cl.bg};border-color:${cl.bd};color:${cl.txt}">
           ${dp}%
         </div>
       </div>
 
-      <!-- KPI GRID -->
       <div class="kpi-grid">
-        ${miniKPI('📞 Llamadas', t[1], 1250, lp)}
-        ${miniKPI('📷 Fotos', t[2], 200, fp)}
-        ${miniKPI('🏥 VV Agend.', t[3], 175, vp)}
-        ${miniKPI('📋 Cotizaciones', t[4], 158, cp)}
+        ${mini('📞 Llamadas', t[1], 1250, lp)}
+        ${mini('📷 Fotos', t[2], 200, fp)}
+        ${mini('🏥 VV Agend.', t[3], 175, vp)}
+        ${mini('📋 Cotizaciones', t[4], 158, cp)}
       </div>
     </div>`;
   }).join('');
 }
 
-function miniKPI(label, val, goal, p) {
+function mini(label, val, goal, p) {
   return `
     <div class="mini-kpi">
       <div class="mini-label">${label}</div>
@@ -455,32 +498,31 @@ function miniKPI(label, val, goal, p) {
     </div>`;
 }
 
-// ─── TICKER BAR ───────────────────────────────────────────────────
+// ─── TICKER ───────────────────────────────────────────────────────
 function renderTicker(teamT, agentT) {
   const items = [
-    { label: 'LEADS TOTALES', val: teamT[0] },
-    { label: 'LLAMADAS EQUIPO', val: `${teamT[1]} / 3,750` },
-    { label: 'FOTOS EQUIPO', val: `${teamT[2]} / 600` },
-    { label: 'VV EQUIPO', val: `${teamT[3]} / 525` },
-    { label: 'COTIZACIONES EQUIPO', val: `${teamT[4]} / 474` },
-    { label: 'CIERRES MES', val: teamT[5], highlight: true },
-    ...AGENTS.map((n, i) => ({ label: `${n.split(' ')[0]} DEP`, val: agentT[i][5] }))
+    { label:'LEADS',       val: teamT[0] },
+    { label:'LLAMADAS',    val: `${teamT[1]} / 3,750` },
+    { label:'FOTOS',       val: `${teamT[2]} / 600` },
+    { label:'VV',          val: `${teamT[3]} / 525` },
+    { label:'COTIZACIONES',val: `${teamT[4]} / 474` },
+    { label:'CIERRES MES', val: teamT[5], hi: true },
+    ...AGENTS.map((n, i) => ({ label: n.split(' ')[0].toUpperCase() + ' DEP', val: agentT[i][5] }))
   ];
 
-  document.getElementById('ticker').innerHTML = items.map(it => `
+  document.getElementById('ticker').innerHTML = items.map((it, i) => `
+    ${i > 0 ? '<span class="ticker-sep">│</span>' : ''}
     <div class="ticker-item">
       <span class="ticker-label">${it.label}</span>
-      <span class="ticker-val" ${it.highlight ? 'style="color:var(--green)"' : ''}>${fmt(it.val)}</span>
-    </div>`).join('<span style="color:var(--border)">│</span>');
+      <span class="ticker-val ${it.hi ? 'ticker-hi' : ''}">${fmt(it.val)}</span>
+    </div>`).join('');
 }
 
-// ─── CLOCK ────────────────────────────────────────────────────────
+// ─── RELOJ ────────────────────────────────────────────────────────
 function updateClock() {
-  const now  = new Date();
-  const hh   = String(now.getHours()).padStart(2,'0');
-  const mm   = String(now.getMinutes()).padStart(2,'0');
-  const ss   = String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
   document.getElementById('date-str').textContent =
     now.toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
 }
@@ -488,11 +530,8 @@ function updateClock() {
 // ─── INIT ─────────────────────────────────────────────────────────
 fetchAndRender();
 updateClock();
-
 setInterval(updateClock, 1000);
-
-// Refresca datos cada hora (ajusta a 24h si prefieres: 86400000)
-setInterval(fetchAndRender, 60 * 60 * 1000);
+setInterval(fetchAndRender, 60 * 60 * 1000); // cada hora
 </script>
 </body>
 </html>
