@@ -308,7 +308,7 @@
     <div class="logo-divider"></div>
     <div class="header-subtitle">
       Dashboard KPIs — Equipo Comercial<br>
-      Mayo 2026 · Meta: 225 depósitos / mes
+      Mayo 2026 · Meta: 155 depósitos / mes
     </div>
   </div>
   <div class="header-right">
@@ -345,7 +345,8 @@ const AGENT_COLS = [
 const TEAM_COLS = [23, 24, 25, 26, 27, 28, 29];
 // idx: 0=leads 1=llamadas 2=fotos 3=VV 4=cotiz 5=dep 6=acumDep
 
-const MONTHLY_GOALS_TEAM = [null, 3750, 600, 525, 474, 225, 225];
+const MONTHLY_GOALS_TEAM = [null, 3750, 600, 525, 474, 155, 155];
+const AGENT_DEP_GOAL = 52; // 155 / 3 agentes ≈ 52
 
 // ─── HELPERS ──────────────────────────────────────────────────────
 const num = v => { const n = parseFloat((v||'').replace(/,/g,'')); return isNaN(n) ? 0 : n; };
@@ -446,7 +447,7 @@ function renderTeam(t) {
 function renderAgents(agentT, lastRow) {
   document.getElementById('agents-row').innerHTML = AGENTS.map((name, a) => {
     const t  = agentT[a];
-    const dp = pct(t[5], 75);
+    const dp = pct(t[5], AGENT_DEP_GOAL);
     const lp = pct(t[1], 1250);
     const fp = pct(t[2], 200);
     const vp = pct(t[3], 175);
@@ -468,7 +469,7 @@ function renderAgents(agentT, lastRow) {
         <div class="deposit-left">
           <div class="deposit-label">💰 Depósitos del mes</div>
           <div class="deposit-value" style="color:${cl.txt}">${t[5]}</div>
-          <div class="deposit-meta" style="color:var(--muted)">Meta: 75 · ${dp}% alcanzado</div>
+          <div class="deposit-meta" style="color:var(--muted)">Meta: ${AGENT_DEP_GOAL} · ${dp}% alcanzado</div>
           <div class="bar-wrap" style="margin-top:6px;height:6px">
             <div class="bar-fill ${fc(dp)}" style="width:${dp}%"></div>
           </div>
@@ -527,11 +528,27 @@ function updateClock() {
     now.toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
 }
 
+// ─── SCHEDULER (Actualizar a las 12pm cada día) ───────────────────
+function scheduleNextUpdate() {
+  const now = new Date();
+  const tomorrow12pm = new Date(now);
+  tomorrow12pm.setDate(tomorrow12pm.getDate() + 1);
+  tomorrow12pm.setHours(12, 0, 0, 0);
+  
+  const msUntilNext = tomorrow12pm - now;
+  console.log(`⏰ Próxima actualización: ${tomorrow12pm.toLocaleString('es-MX')} (${Math.round(msUntilNext / 1000 / 60)} min)`);
+  
+  setTimeout(() => {
+    fetchAndRender();
+    scheduleNextUpdate(); // Programa la siguiente a las 12pm del próximo día
+  }, msUntilNext);
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────
 fetchAndRender();
 updateClock();
 setInterval(updateClock, 1000);
-setInterval(fetchAndRender, 60 * 60 * 1000); // cada hora
+scheduleNextUpdate(); // Calcula y programa actualización para las 12pm
 </script>
 </body>
 </html>
