@@ -248,16 +248,39 @@ async function fetchAndRender() {
     const teamT  = getTotals(TEAM_COLS);
     const agentT = AGENTS.map((_, i) => getTotals(AGENT_COLS[i]));
 
-    // Fila con actividad más reciente (= "día anterior")
+    // Parsear fecha de una fila (formato DD/MM/YYYY o DD/MM/YY)
+    function parseRowDate(r) {
+      const parts = (r[0] || '').split('/');
+      if (parts.length < 3) return null;
+      const [d, m, y] = parts;
+      return new Date(y.length === 2 ? '20'+y : y, parseInt(m)-1, parseInt(d));
+    }
+
+    // Fecha de hoy sin hora
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0,0,0,0);
+
+    // Filas con al menos una llamada registrada, ordenadas por fecha asc
+    const activeRows = monthRows.filter(r =>
+      AGENT_COLS.some(cols => num(r[cols[1]]) > 0) // cols[1] = llamadas
+    );
+
+    // "Día anterior" = la fila más reciente cuya fecha sea ANTES de hoy
+    const yesterdayRow = [...activeRows].reverse().find(r => {
+      const d = parseRowDate(r);
+      return d && d.getTime() < todayMidnight.getTime();
+    }) || activeRows[activeRows.length - 2] || activeRows[activeRows.length - 1];
+
+    // Fila más reciente con cualquier actividad (para badge del header)
     const lastActive = [...monthRows].reverse().find(r =>
       AGENT_COLS.flat().some(c => num(r[c]) > 0)
     ) || monthRows[monthRows.length - 1];
 
-    // Fecha del último día activo
-    const lastDateStr = lastActive ? lastActive[0] : '';
+    // Fecha del día anterior para mostrar en UI
+    const lastDateStr = yesterdayRow ? yesterdayRow[0] : '';
 
     renderTeam(teamT);
-    renderAgents(agentT, lastActive, lastDateStr);
+    renderAgents(agentT, yesterdayRow, lastDateStr, lastActive);
     renderTicker(teamT, agentT);
 
     document.getElementById('last-update').textContent =
@@ -298,7 +321,7 @@ function renderTeam(t) {
 }
 
 // ── AGENT CARDS ───────────────────────────────────────────────────
-function renderAgents(agentT, lastRow, lastDateStr) {
+function renderAgents(agentT, yesterdayRow, lastDateStr, lastActive) {
   // Formatear la fecha del último día activo para mostrarla
   let dayLabel = 'Día anterior';
   if (lastDateStr) {
@@ -315,9 +338,10 @@ function renderAgents(agentT, lastRow, lastDateStr) {
     const cp = pct(t[4], 158);
     const cl = blockColors(dp);
 
-    // Valores del día anterior
-    const ld       = lastRow ? AGENT_COLS[a].map(c => num(lastRow[c])) : new Array(8).fill(0);
-    const callsAyer = ld[1]; // llamadas del día anterior
+    // Valores del día anterior (llamadas) y último día (dep/VV para badge)
+    const ld       = lastActive ? AGENT_COLS[a].map(c => num(lastActive[c])) : new Array(8).fill(0);
+    const ldYest   = yesterdayRow ? AGENT_COLS[a].map(c => num(yesterdayRow[c])) : new Array(8).fill(0);
+    const callsAyer = ldYest[1]; // llamadas del día anterior real
     const callsPct  = pct(callsAyer, DAILY_CALLS_REF);
     const callsCC   = cc(callsPct);
 
