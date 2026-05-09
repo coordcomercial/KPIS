@@ -210,8 +210,8 @@ function renderTeam(t) {
   // t idx: 0=leads 1=llamadas 2=VVreal 3=VVagend 4=cotiz 5=dep
   const cards = [
     { icon:'🎯', label:'Leads Acumulados',  val:t[0], goal:GOALS_TEAM[0] },
-    { icon:'🏥', label:'VV Agendadas',       val:t[3], goal:GOALS_TEAM[3] },
-    { icon:'✅', label:'VV Realizadas',      val:t[2], goal:GOALS_TEAM[2] },
+    { icon:'🏥', label:'VV Agendadas',       val:t[2], goal:GOALS_TEAM[2] },
+    { icon:'✅', label:'VV Realizadas',      val:t[3], goal:GOALS_TEAM[3] },
     { icon:'📋', label:'Cotizaciones',        val:t[4], goal:GOALS_TEAM[4] },
     { icon:'💰', label:'Depósitos Equipo',   val:t[5], goal:GOALS_TEAM[5] },
   ];
@@ -238,8 +238,8 @@ function renderAgents(agentT, yesterdayRow, lastDateStr, lastActive) {
     // t: [leads, llamadas, VVreal, VVagend, cotiz, dep, acum]
     const dp = pct(t[5], GOALS_AGENT[5]);
     const lp = pct(t[1], GOALS_AGENT[1]);
-    const vp = pct(t[3], GOALS_AGENT[3]);
-    const vrp= pct(t[2], GOALS_AGENT[2]);
+    const vp = pct(t[2], GOALS_AGENT[2]);   // VV Agendadas = col 2
+    const vrp= pct(t[3], GOALS_AGENT[3]);   // VV Realizadas = col 3
     const cp = pct(t[4], GOALS_AGENT[4]);
     const cl = blockColors(dp);
 
@@ -254,7 +254,7 @@ function renderAgents(agentT, yesterdayRow, lastDateStr, lastActive) {
     <div class="agent-card">
       <div class="agent-header">
         <div class="agent-name">👤 ${first} <span style="color:var(--muted);font-weight:600">${last}</span></div>
-        <div class="agent-badge">Dep ayer: ${ldYest[5]||0} · VV: ${ldYest[3]||0}</div>
+        <div class="agent-badge">Dep ayer: ${ldYest[5]||0} · VV: ${ldYest[2]||0}</div>
       </div>
 
       <div class="agent-top">
@@ -276,9 +276,9 @@ function renderAgents(agentT, yesterdayRow, lastDateStr, lastActive) {
       </div>
 
       <div class="kpi-grid">
-        ${mini('📞 Llamadas',   t[1], GOALS_AGENT[1], lp)}
-        ${mini('✅ VV Realizadas', t[2], GOALS_AGENT[2], vrp)}
-        ${mini('🏥 VV Agend.',  t[3], GOALS_AGENT[3], vp)}
+        ${mini('📞 Llamadas',      t[1], GOALS_AGENT[1], lp)}
+        ${mini('🏥 VV Agend.',    t[2], GOALS_AGENT[2], vp)}
+        ${mini('✅ VV Realizadas', t[3], GOALS_AGENT[3], vrp)}
         ${mini('📋 Cotizaciones', t[4], GOALS_AGENT[4], cp)}
       </div>
     </div>`;
