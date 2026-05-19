@@ -193,7 +193,7 @@ async function fetchAndRender() {
     const lastActive = [...monthRows].reverse().find(r => AGENT_COLS.flat().some(c=>num(r[c])>0)) || monthRows[monthRows.length-1];
     const lastDateStr = yesterdayRow ? yesterdayRow[0] : '';
 
-    renderTeam(teamT);
+    renderTeam(teamT, pacCiplastic);
     renderAgents(agentT, yesterdayRow, lastDateStr, lastActive);
     renderTicker(teamT, agentT);
     document.getElementById('last-update').textContent = `✓ Actualizado ${new Date().toLocaleTimeString('es-MX')}`;
