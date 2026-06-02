@@ -178,10 +178,21 @@ async function fetchAndRender() {
       return r[0] && r[0].indexOf('/' + MONTH_TAG) >= 0;
     });
 
+    // Sin filas para este mes todavía → mostrar mensaje amigable
+    if (firstIdx < 0 || monthRows.length === 0) {
+      document.getElementById('month-label').textContent = MONTH_LABEL;
+      document.getElementById('team-row').innerHTML =
+        '<div class="state-msg">📅 Sin datos registrados para ' + MONTH_LABEL + ' todavía</div>';
+      document.getElementById('agents-row').innerHTML = '';
+      document.getElementById('ticker').innerHTML = '';
+      document.getElementById('last-update').textContent = '✓ Revisado ' + new Date().toLocaleTimeString('es-MX');
+      return;
+    }
+
     // Fila TOTAL MES (después de las filas del mes)
     var totalRow = null;
     for (var i = firstIdx; i < rows.length; i++) {
-      if (rows[i][0] === 'TOTAL MES' && !totalRow) { totalRow = rows[i]; break; }
+      if (rows[i] && rows[i][0] === 'TOTAL MES' && !totalRow) { totalRow = rows[i]; break; }
     }
 
     // Totales del equipo
@@ -193,15 +204,18 @@ async function fetchAndRender() {
     // Pacientes CIPlastic
     var pac = num(totalRow ? totalRow[PAC_COL] : 0);
 
-    // Fila del día anterior para "Llamadas ayer"
+    // Fila del día anterior — con guarda si no hay actividad aún
     var todayMid = new Date(); todayMid.setHours(0, 0, 0, 0);
     var activeRows = monthRows.filter(function(r) {
       return AGENT_COLS.some(function(cols) { return num(r[cols[1]]) > 0; });
     });
-    var ydRow = activeRows.slice().reverse().find(function(r) {
-      var d = parseRowDate(r);
-      return d && d.getTime() < todayMid.getTime();
-    }) || activeRows[activeRows.length - 2] || activeRows[activeRows.length - 1];
+    var ydRow = null;
+    if (activeRows.length > 0) {
+      ydRow = activeRows.slice().reverse().find(function(r) {
+        var d = parseRowDate(r);
+        return d && d.getTime() < todayMid.getTime();
+      }) || activeRows[activeRows.length - 1] || null;
+    }
 
     document.getElementById('month-label').textContent = MONTH_LABEL;
     renderTeam(teamT, pac);
