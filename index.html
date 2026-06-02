@@ -98,7 +98,15 @@
 // ══════════════════════════════════════════════════════
 //  CONFIG — verificado contra CSV real del spreadsheet
 // ══════════════════════════════════════════════════════
-var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNTb7GpWusuQvCGJlhnC98MUX_p35G5Ilcx-5wwxUkmjibI7nLrS2jZTh4NduStt87Tq7A3Jxagj7W/pub?gid=2087468070&single=true&output=csv';
+// Mapa de mes → GID publicado. Agrega el GID de cada pestaña al publicarla.
+var GID_MAP = {
+  '05/2026': '2087468070',
+  '06/2026': '2124525199',
+  // '07/2026': 'XXXXXXXXX',  ← agrega el GID de julio cuando lo publiques
+  // '08/2026': 'XXXXXXXXX',
+};
+
+var BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNTb7GpWusuQvCGJlhnC98MUX_p35G5Ilcx-5wwxUkmjibI7nLrS2jZTh4NduStt87Tq7A3Jxagj7W/pub?single=true&output=csv';
 // Mes actual detectado automáticamente — no requiere cambios manuales
 var _now = new Date();
 var MONTH_TAG = String(_now.getMonth() + 1).padStart(2, '0') + '/' + _now.getFullYear();
@@ -166,7 +174,7 @@ function parseRowDate(r) {
 // ══════════════════════════════════════════════════════
 async function fetchAndRender() {
   try {
-    var res = await fetch(CSV_URL + '&t=' + Date.now());
+    var res = await fetch(CSV_URL);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var rows = parseCSV(await res.text());
 
