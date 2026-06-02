@@ -79,7 +79,7 @@
     <div class="logo-divider"></div>
     <div class="header-subtitle">
       Dashboard KPIs — Equipo Comercial<br>
-      Mayo 2026 · Meta: 155 depósitos · 2,800 leads / mes
+      <span id="month-label">Cargando...</span> · Meta: 155 depósitos · 2,800 leads / mes
     </div>
   </div>
   <div class="header-right">
@@ -99,7 +99,11 @@
 //  CONFIG — verificado contra CSV real del spreadsheet
 // ══════════════════════════════════════════════════════
 var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNTb7GpWusuQvCGJlhnC98MUX_p35G5Ilcx-5wwxUkmjibI7nLrS2jZTh4NduStt87Tq7A3Jxagj7W/pub?gid=2087468070&single=true&output=csv';
-var MONTH_TAG = '05/2026'; // ← actualiza cada mes (ej. '06/2026')
+// Mes actual detectado automáticamente — no requiere cambios manuales
+var _now = new Date();
+var MONTH_TAG = String(_now.getMonth() + 1).padStart(2, '0') + '/' + _now.getFullYear();
+var MONTH_LABEL = _now.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })
+  .replace(/^\w/, function(c) { return c.toUpperCase(); }); // ej. "Junio 2026"
 
 var AGENTS = ['PEDRO BACA', 'MISAEL MIRANDA', 'ALEXA ESCALANTE'];
 
@@ -199,6 +203,7 @@ async function fetchAndRender() {
       return d && d.getTime() < todayMid.getTime();
     }) || activeRows[activeRows.length - 2] || activeRows[activeRows.length - 1];
 
+    document.getElementById('month-label').textContent = MONTH_LABEL;
     renderTeam(teamT, pac);
     renderAgents(agentT, ydRow);
     renderTicker(teamT, agentT);
